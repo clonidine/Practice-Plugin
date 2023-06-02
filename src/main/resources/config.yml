@@ -1,0 +1,4 @@
+MySQL:
+  url: 'jdbc:mysql://localhost:3306/practice?characterEncoding=utf8'
+  user: 'mig'
+  password: '123mig'
