@@ -50,7 +50,7 @@ public final class ArenaCreateSubCommand implements SubCommand {
 
         final Arena arena = new ArenaImpl(arenaName, false);
 
-        boolean success = arenaRepository.save(arena);
+        final boolean success = arenaRepository.save(arena);
 
         if (!success) {
             MessageUtils.send(sender, "&cA problem occurred when trying to create this arena. Please check the console log");
