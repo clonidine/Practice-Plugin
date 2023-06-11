@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class RankRepository implements Repository<Rank> {
+public final class RankRepository implements Repository<Rank> {
 
     private final DatabaseProvider provider;
     private final String TABLE_NAME = "ranks";
@@ -30,27 +30,31 @@ public class RankRepository implements Repository<Rank> {
     }
 
     @Override
-    public void save(Rank rank) {
+    public boolean save(Rank rank) {
 
         try (final Connection connection = provider.getConnection()) {
 
             final String commandToExecute = String.format("INSERT INTO %s VALUES (?, ?, ?)", TABLE_NAME);
 
-            PreparedStatement statement =  connection.prepareStatement(commandToExecute);
+            final PreparedStatement statement = connection.prepareStatement(commandToExecute);
 
             statement.setString(1, rank.getName());
             statement.setString(2, rank.getColor().name());
             statement.setString(3, rank.getFormat());
 
             statement.executeUpdate();
+
+            return true;
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+
+        return false;
     }
 
     @Override
-    public void delete(Rank rank) {
-
+    public boolean delete(Rank rank) {
+        return false;
     }
 
     @Override
@@ -83,6 +87,7 @@ public class RankRepository implements Repository<Rank> {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+
         return Optional.empty();
     }
 
@@ -95,9 +100,9 @@ public class RankRepository implements Repository<Rank> {
 
             final String commandToExecute = String.format(
                     "CREATE TABLE IF NOT EXISTS %s ("
-                            + "Name varchar(255),"
+                            + "Name varchar(255) PRIMARY KEY,"
                             + "Color varchar(255), "
-                            + "Format varchar(255), PRIMARY KEY(Name));", TABLE_NAME);
+                            + "Format varchar(255));", TABLE_NAME);
 
             statement.executeUpdate(commandToExecute);
 
@@ -109,5 +114,10 @@ public class RankRepository implements Repository<Rank> {
     @Override
     public boolean update(String columnFilterName, String columnToUpdate, String filter, String newValue) {
         return false;
+    }
+
+    @Override
+    public <V> List<Rank> findAllOfId(String s, V v) {
+        return null;
     }
 }

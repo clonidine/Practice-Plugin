@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class FighterRepository implements Repository<Fighter> {
+public final class FighterRepository implements Repository<Fighter> {
 
     private final DatabaseProvider databaseProvider;
     private final Repository<Rank> rankRepository;
@@ -33,6 +33,8 @@ public class FighterRepository implements Repository<Fighter> {
     @Override
     public List<Fighter> findAll() {
 
+        final List<Fighter> fighters = new ArrayList<>();
+
         try (final Connection connection = databaseProvider.getConnection()) {
 
             final String commandToExecute = String.format("SELECT * FROM %s", TABLE_NAME);
@@ -41,9 +43,7 @@ public class FighterRepository implements Repository<Fighter> {
 
             final ResultSet resultSet = statement.executeQuery();
 
-            final List<Fighter> fighters = new ArrayList<>();
-
-            while (resultSet.next()) {
+            do {
 
                 final UUID id = UUID.fromString(resultSet.getString("id"));
 
@@ -52,28 +52,29 @@ public class FighterRepository implements Repository<Fighter> {
 
                 final float kdr = resultSet.getFloat("kdr");
 
-                final String rankName = resultSet.getString("Rank");
+                final String rankName = resultSet.getString("rank");
 
-                final Optional<Rank> rankToFind = rankRepository.findOne("Name", rankName);
+                final Optional<Rank> rankToFind = rankRepository.findOne("name", rankName);
 
                 rankToFind.ifPresent(rank -> {
+
                     final Statistics statistics = new Statistics(kills, deaths, kdr);
                     final Fighter fighter = new FighterImpl(id, statistics, rank);
 
                     fighters.add(fighter);
                 });
-            }
 
-            return fighters;
+            } while (resultSet.next());
+
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
 
-        return null;
+        return fighters;
     }
 
     @Override
-    public void save(Fighter obj) {
+    public boolean save(Fighter obj) {
 
         try (final Connection connection = databaseProvider.getConnection()) {
 
@@ -90,14 +91,18 @@ public class FighterRepository implements Repository<Fighter> {
             statement.setString(5, obj.getRank().getName());
 
             statement.executeUpdate();
+
+            return true;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+
+        return false;
     }
 
     @Override
-    public void delete(Fighter object) {
-
+    public boolean delete(Fighter object) {
+        return false;
     }
 
     @Override
@@ -105,7 +110,7 @@ public class FighterRepository implements Repository<Fighter> {
 
         try (final Connection connection = databaseProvider.getConnection()) {
 
-            final String commandToExecute = String.format("SELECT * FROM %s WHERE %s = ?", TABLE_NAME, field);
+            final String commandToExecute = String.format("SELECT * FROM %s WHERE %s = ? LIMIT 1", TABLE_NAME, field);
             final PreparedStatement statement = connection.prepareStatement(commandToExecute);
 
             statement.setString(1, value);
@@ -115,20 +120,19 @@ public class FighterRepository implements Repository<Fighter> {
 
             if (hasFound) {
 
-                final UUID id = UUID.fromString(fighterResultSet.getString("id"));
-
-                final int kills = fighterResultSet.getInt("kills");
-                final int deaths = fighterResultSet.getInt("deaths");
-
-                final float kdr = fighterResultSet.getFloat("kdr");
-
                 final String rankName = fighterResultSet.getString("Rank");
-
                 final Optional<Rank> rankToFind = rankRepository.findOne("Name", rankName);
 
-                boolean rankPresent = rankToFind.isPresent();
+                final boolean rankPresent = rankToFind.isPresent();
 
                 if (rankPresent) {
+
+                    final UUID id = UUID.fromString(fighterResultSet.getString("id"));
+
+                    final int kills = fighterResultSet.getInt("kills");
+                    final int deaths = fighterResultSet.getInt("deaths");
+
+                    final float kdr = fighterResultSet.getFloat("kdr");
 
                     final Statistics statistics = new Statistics(kills, deaths, kdr);
                     final Rank rank = rankToFind.get();
@@ -138,6 +142,7 @@ public class FighterRepository implements Repository<Fighter> {
                 } else {
                     throw new ObjectNotFoundException("Fighter's rank not found. Please, set a rank for this fighter.");
                 }
+
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -155,11 +160,11 @@ public class FighterRepository implements Repository<Fighter> {
 
             final String commandToExecute = String.format(
                     "CREATE TABLE IF NOT EXISTS %s ("
-                            + "Id varchar(255),"
-                            + "Kills int,"
-                            + "Deaths int,"
-                            + "Kdr float, "
-                            + "Rank varchar(255), PRIMARY KEY(Id));", TABLE_NAME);
+                            + "Id VARCHAR(255), PRIMARY KEY(Id),"
+                            + "Kills INT,"
+                            + "Deaths INT,"
+                            + "Kdr FLOAT,"
+                            + "Rank VARCHAR(255))", TABLE_NAME);
 
             statement.executeUpdate(commandToExecute);
 
@@ -188,5 +193,10 @@ public class FighterRepository implements Repository<Fighter> {
         }
 
         return false;
+    }
+
+    @Override
+    public <V> List<Fighter> findAllOfId(String s, V v) {
+        return null;
     }
 }

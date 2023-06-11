@@ -14,7 +14,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PlayerChatListener implements Listener {
+public final class PlayerChatListener implements Listener {
 
     private final Repository<Fighter> fighterRepository;
 
@@ -26,7 +26,8 @@ public class PlayerChatListener implements Listener {
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
-        event.setCancelled(true);
+
+        if (!event.isCancelled()) event.setCancelled(true);
 
         final Player player = event.getPlayer();
 

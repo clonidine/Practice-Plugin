@@ -5,3 +5,4 @@ main: dev.mig.practice.PracticePlugin
 commands:
   statistics:
     aliases: [stats, profile]
+  arena:

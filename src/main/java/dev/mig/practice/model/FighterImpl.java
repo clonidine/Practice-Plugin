@@ -12,14 +12,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-public class FighterImpl implements Fighter {
+public final class FighterImpl implements Fighter {
 
     private final UUID uuid;
     private Statistics stats;
     private Rank rank;
-
-    @Override
-    public Rank getRank() {
-        return rank;
-    }
 }

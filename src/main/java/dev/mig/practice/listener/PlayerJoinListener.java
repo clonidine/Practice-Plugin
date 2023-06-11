@@ -18,20 +18,20 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PlayerJoinListener implements Listener {
+public final class PlayerJoinListener implements Listener {
 
     private final Repository<Fighter> fighterRepository;
-    private static final Rank DEFAULT_RANK = new RankImpl("Default", ChatColor.GREEN, "");
+    private static final Rank DEFAULT_RANK = new RankImpl("Default", ChatColor.GREEN, "[Default]");
 
     public PlayerJoinListener(PracticePlugin plugin) {
 
         fighterRepository = plugin.getFighterRepository();
-        
+
         final Repository<Rank> rankRepository = plugin.getRankRepository();
 
-        Optional<Rank> defaultRankOptional = rankRepository.findOne("Name", DEFAULT_RANK.getName());
+        final Optional<Rank> defaultRankOptional = rankRepository.findOne("Name", DEFAULT_RANK.getName());
 
-        boolean defaultRankPresent = defaultRankOptional.isPresent();
+        final boolean defaultRankPresent = defaultRankOptional.isPresent();
         
         if (!defaultRankPresent) {
             rankRepository.save(DEFAULT_RANK);

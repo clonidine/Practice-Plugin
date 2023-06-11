@@ -4,5 +4,5 @@ import dev.mig.practice.api.manager.ObjectManager;
 
 import java.util.UUID;
 
-public class FighterManager extends ObjectManager<UUID> {
+public final class FighterManager extends ObjectManager<UUID> {
 }

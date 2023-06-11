@@ -9,7 +9,7 @@ import org.bukkit.ChatColor;
 @AllArgsConstructor
 @Getter
 @Setter
-public class RankImpl implements Rank {
+public final class RankImpl implements Rank {
 
     private String name;
     private ChatColor color;

@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 @Getter
 @RequiredArgsConstructor
-public class MySQL implements DatabaseProvider {
+public final class MySQL implements DatabaseProvider {
 
     private Connection connection;
     private final PracticePlugin plugin;

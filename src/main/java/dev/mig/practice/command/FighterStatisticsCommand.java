@@ -40,9 +40,9 @@ public final class FighterStatisticsCommand implements CommandExecutor, CommandU
 
         final Optional<Fighter> fighterToFind = PlayerUtils.getFighterByName(fighterRepository, playerName);
 
-        final boolean fighterToFindPresent = fighterToFind.isPresent();
+        final boolean hasFound = fighterToFind.isPresent();
 
-        if (!fighterToFindPresent) {
+        if (!hasFound) {
 
             final String fighterNotFoundMessage = "&cThis fighter doesn't exist in our server.";
 
@@ -59,6 +59,7 @@ public final class FighterStatisticsCommand implements CommandExecutor, CommandU
 
         final int fighterKills = fighterStats.getKills();
         final int fighterDeaths = fighterStats.getDeaths();
+
         final float fighterKdr = fighterStats.getKdr();
 
         MessageUtils.send(sender, "&e" + playerName + "'s statistics:");
