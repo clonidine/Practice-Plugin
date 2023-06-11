@@ -15,11 +15,11 @@ import org.bukkit.command.CommandSender;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class FighterStatisticsCommand implements CommandExecutor, CommandUsage {
+public final class StatisticsCommand implements CommandExecutor, CommandUsage {
 
     private final Repository<Fighter> fighterRepository;
 
-    public FighterStatisticsCommand(PracticePlugin plugin) {
+    public StatisticsCommand(PracticePlugin plugin) {
         fighterRepository = plugin.getFighterRepository();
 
         plugin.getCommand("statistics").setExecutor(this);
