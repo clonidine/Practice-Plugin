@@ -124,9 +124,9 @@ public final class DuelCommand implements CommandExecutor, CommandUsage {
 
         final DuelInvite duelInvite = new DuelInviteImpl(fighterOne, fighterTwo, new Date(), arena);
 
-        final long minutes = 1000 * 60 * 5L;
+        final long time = 1000 * 60 * 5L;
 
-        duelInviteManager.getCooldownMap().put(duelInvite, minutes);
+        duelInviteManager.getCooldownMap().put(duelInvite, time);
         duelInviteManager.getDuelInvites().add(duelInvite);
 
         MessageUtils.send(sender, "&aThe dueling invitation has been sent successfully. The player will have 5 minutes to accept it.");
