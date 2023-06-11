@@ -22,6 +22,7 @@ public final class PlayerJoinListener implements Listener {
 
     private final Repository<Fighter> fighterRepository;
     private static final Rank DEFAULT_RANK = new RankImpl("Default", ChatColor.GREEN, "[Default]");
+    private static final Statistics DEFAULT_STATISTICS = new Statistics(0, 0, 0.0F);
 
     public PlayerJoinListener(PracticePlugin plugin) {
 
@@ -51,15 +52,9 @@ public final class PlayerJoinListener implements Listener {
 
         if (!fighterFound) {
 
-            final Fighter fighter = new FighterImpl(playerUuid, new Statistics(0, 0, 0.0F), DEFAULT_RANK);
+            final Fighter fighter = new FighterImpl(playerUuid, DEFAULT_STATISTICS, DEFAULT_RANK);
 
             fighterRepository.save(fighter);
-
-            MessageUtils.send(player, "&aUser created!");
-
-            return;
         }
-
-        MessageUtils.send(player, "&aUser found in database!");
     }
 }

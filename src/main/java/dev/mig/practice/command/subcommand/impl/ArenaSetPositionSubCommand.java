@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class ArenaSetPositionSubCommand implements SubCommand, CommandUsage {
+public final class ArenaSetPositionSubCommand implements SubCommand, CommandUsage {
 
     private final Repository<Arena> arenaRepository;
     private final Repository<Position> positionRepository;

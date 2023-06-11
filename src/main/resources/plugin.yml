@@ -6,3 +6,5 @@ commands:
   statistics:
     aliases: [stats, profile]
   arena:
+
+  duel:

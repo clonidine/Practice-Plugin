@@ -196,7 +196,7 @@ public final class FighterRepository implements Repository<Fighter> {
     }
 
     @Override
-    public <V> List<Fighter> findAllOfId(String s, V v) {
+    public <V> List<Fighter> findAllOfId(String id, V value) {
         return null;
     }
 }

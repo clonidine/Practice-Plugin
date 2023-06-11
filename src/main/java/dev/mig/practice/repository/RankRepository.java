@@ -100,9 +100,9 @@ public final class RankRepository implements Repository<Rank> {
 
             final String commandToExecute = String.format(
                     "CREATE TABLE IF NOT EXISTS %s ("
-                            + "Name varchar(255) PRIMARY KEY,"
-                            + "Color varchar(255), "
-                            + "Format varchar(255));", TABLE_NAME);
+                            + "Name VARCHAR(255) PRIMARY KEY,"
+                            + "Color VARCHAR(255), "
+                            + "Format VARCHAR(255));", TABLE_NAME);
 
             statement.executeUpdate(commandToExecute);
 

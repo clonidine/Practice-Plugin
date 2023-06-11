@@ -5,14 +5,16 @@ import com.databridge.mig.repository.Repository;
 import dev.mig.practice.api.manager.ObjectManager;
 import dev.mig.practice.api.model.arena.Arena;
 import dev.mig.practice.api.model.arena.positions.Position;
+import dev.mig.practice.api.model.duel.DuelInvite;
 import dev.mig.practice.api.model.fighter.Fighter;
 import dev.mig.practice.api.model.fighter.rank.Rank;
 import dev.mig.practice.command.ArenaCommand;
+import dev.mig.practice.command.DuelCommand;
 import dev.mig.practice.command.FighterStatisticsCommand;
 import dev.mig.practice.database.MySQL;
 import dev.mig.practice.listener.PlayerChatListener;
 import dev.mig.practice.listener.PlayerJoinListener;
-import dev.mig.practice.manager.FighterManager;
+import dev.mig.practice.manager.DuelInviteManager;
 import dev.mig.practice.repository.ArenaRepository;
 import dev.mig.practice.repository.FighterRepository;
 import dev.mig.practice.repository.PositionsRepository;
@@ -22,15 +24,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.UUID;
-
 @Getter
 public final class PracticePlugin extends JavaPlugin {
 
 
     // MANAGERS
-
-    private ObjectManager<UUID> fighterObjectManager;
+    private DuelInviteManager duelInviteObjectManager;
 
     // DATABASE
 
@@ -71,7 +70,7 @@ public final class PracticePlugin extends JavaPlugin {
     }
 
     private void createManager() {
-        fighterObjectManager = new FighterManager();
+        duelInviteObjectManager = new DuelInviteManager();
     }
 
     private void initializeRepositories() {
@@ -84,5 +83,6 @@ public final class PracticePlugin extends JavaPlugin {
     private void registerCommand() {
         new FighterStatisticsCommand(this);
         new ArenaCommand(this);
+        new DuelCommand(this);
     }
 }

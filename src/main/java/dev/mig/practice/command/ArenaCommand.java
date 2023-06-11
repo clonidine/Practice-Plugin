@@ -2,6 +2,7 @@ package dev.mig.practice.command;
 
 import dev.mig.practice.PracticePlugin;
 import dev.mig.practice.command.subcommand.SubCommand;
+import dev.mig.practice.command.subcommand.impl.ArenaActivateSubCommand;
 import dev.mig.practice.command.subcommand.impl.ArenaCreateSubCommand;
 import dev.mig.practice.command.subcommand.impl.ArenaInfoSubCommand;
 import dev.mig.practice.command.subcommand.impl.ArenaSetPositionSubCommand;
@@ -25,6 +26,7 @@ public final class ArenaCommand implements CommandExecutor, CommandUsage {
         subCommands.add(new ArenaCreateSubCommand(plugin));
         subCommands.add(new ArenaSetPositionSubCommand(plugin));
         subCommands.add(new ArenaInfoSubCommand(plugin));
+        subCommands.add(new ArenaActivateSubCommand(plugin));
 
         plugin.getCommand("arena").setExecutor(this);
     }
@@ -73,6 +75,7 @@ public final class ArenaCommand implements CommandExecutor, CommandUsage {
         return ChatColor.YELLOW +
                 "/arena create <name>\n" +
                 "/arena delete <name>\n" +
-                "/arena setposition <name>";
+                "/arena setposition <name>\n" +
+                "/arena activate <name>";
     }
 }

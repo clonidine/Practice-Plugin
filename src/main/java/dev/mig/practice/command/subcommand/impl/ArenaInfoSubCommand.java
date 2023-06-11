@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class ArenaInfoSubCommand implements SubCommand {
+public final class ArenaInfoSubCommand implements SubCommand {
 
     private final Repository<Arena> arenaRepository;
 

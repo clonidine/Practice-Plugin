@@ -99,7 +99,7 @@ public final class ArenaRepository implements Repository<Arena> {
             final Statement statement = connection.createStatement();
 
             final String commandToExecute = String.format(
-                    "CREATE TABLE IF NOT EXISTS %s (Name varchar(255), PRIMARY KEY(Name), Active BOOLEAN)", TABLE_NAME
+                    "CREATE TABLE IF NOT EXISTS %s (Name VARCHAR(255), PRIMARY KEY(Name), Active BOOLEAN)", TABLE_NAME
             );
 
             statement.executeUpdate(commandToExecute);
@@ -111,9 +111,25 @@ public final class ArenaRepository implements Repository<Arena> {
 
     @Override
     public boolean update(String columnFilterName, String columnToUpdate, String filter, String newValue) {
-        return Repository.super.update(columnFilterName, columnToUpdate, filter, newValue);
-    }
 
+        try (final Connection connection = databaseProvider.getConnection()) {
+
+            final String commandToExecute = String.format("UPDATE %s SET %s = ? WHERE %s = ?", TABLE_NAME, columnToUpdate, columnFilterName);
+
+            final PreparedStatement statement = connection.prepareStatement(commandToExecute);
+
+            statement.setBoolean(1, Boolean.parseBoolean(newValue));
+            statement.setString(2, filter);
+
+            statement.executeUpdate();
+
+            return true;
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        return false;
+    }
     @Override
     public <V> List<Arena> findAllOfId(String s, V v) {
         return null;
