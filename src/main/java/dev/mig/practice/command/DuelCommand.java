@@ -5,8 +5,11 @@ import dev.mig.practice.PracticePlugin;
 import dev.mig.practice.api.model.arena.Arena;
 import dev.mig.practice.api.model.duel.DuelInvite;
 import dev.mig.practice.api.model.fighter.Fighter;
+import dev.mig.practice.command.subcommand.SubCommand;
+import dev.mig.practice.command.subcommand.impl.duel.DuelAcceptSubCommand;
 import dev.mig.practice.command.usage.CommandUsage;
 import dev.mig.practice.manager.DuelInviteManager;
+import dev.mig.practice.manager.MatchManager;
 import dev.mig.practice.model.DuelInviteImpl;
 import dev.mig.practice.util.MessageUtils;
 import org.bukkit.Bukkit;
@@ -16,7 +19,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public final class DuelCommand implements CommandExecutor, CommandUsage {
@@ -24,19 +29,26 @@ public final class DuelCommand implements CommandExecutor, CommandUsage {
     private final Repository<Arena> arenaRepository;
     private final Repository<Fighter> fighterRepository;
     private final DuelInviteManager duelInviteManager;
+    private final MatchManager matchManager;
+    private final List<SubCommand> subCommands = new ArrayList<>();
 
     public DuelCommand(PracticePlugin plugin) {
         duelInviteManager = plugin.getDuelInviteObjectManager();
+        matchManager = plugin.getMatchManager();
 
         arenaRepository = plugin.getArenaRepository();
         fighterRepository = plugin.getFighterRepository();
+
+        subCommands.add(new DuelAcceptSubCommand(plugin));
 
         plugin.getCommand("duel").setExecutor(this);
     }
 
     @Override
     public String getUsage() {
-        return ChatColor.YELLOW + "/duel <player> <arena>";
+        return ChatColor.YELLOW
+                + "/duel <player> <arena>\n"
+                + "/duel accept <player>";
     }
 
     @Override
@@ -47,11 +59,38 @@ public final class DuelCommand implements CommandExecutor, CommandUsage {
             return false;
         }
 
-        final boolean sufficientArgs = args.length == 2;
-
-        if (!sufficientArgs) {
+        if (args.length == 0) {
             MessageUtils.send(sender, getUsage());
             return false;
+        }
+
+        else if (isSubCommand(args)) {
+
+            for (SubCommand subCommand : subCommands) {
+                final boolean validSubCommand = subCommand.getAliases().contains(args[0]);
+
+                if (validSubCommand) {
+                    return subCommand.execute(sender, args);
+                }
+            }
+        }
+
+        else {
+            sendDuelInvite(sender, args);
+        }
+
+        return false;
+    }
+
+    private void sendDuelInvite(CommandSender sender, String[] args) {
+
+        final Player inviteSender = (Player) sender;
+
+        boolean inMatch = matchManager.isInMatch(inviteSender.getUniqueId());
+
+        if (inMatch) {
+            MessageUtils.send(sender, "&cYou need to finish your fight before you can invite a player to a duel.");
+            return;
         }
 
         final String targetName = args[0];
@@ -60,17 +99,22 @@ public final class DuelCommand implements CommandExecutor, CommandUsage {
 
         if (targetPlayer == null) {
             MessageUtils.send(sender, "&cThis player is offline.");
-            return false;
+            return;
         }
-
-        final Player inviteSender = (Player) sender;
 
         final Optional<Fighter> fighterSenderToFind = fighterRepository.findOne("Id", inviteSender.getUniqueId().toString());
         final Optional<Fighter> fighterTargetToFind = fighterRepository.findOne("Id", targetPlayer.getUniqueId().toString());
 
         if (!fighterSenderToFind.isPresent() || !fighterTargetToFind.isPresent()) {
             MessageUtils.send(sender, "&cAn unexpected error occurred. Please contact the administrators.");
-            return false;
+            return;
+        }
+
+        inMatch = matchManager.isInMatch(targetPlayer.getUniqueId());
+
+        if (inMatch) {
+            MessageUtils.send(sender, "&cThis player is dueling. Please wait for him to finish.");
+            return;
         }
 
         final Optional<DuelInvite> inviteToFind = duelInviteManager.getInvite(inviteSender, targetPlayer);
@@ -87,16 +131,14 @@ public final class DuelCommand implements CommandExecutor, CommandUsage {
 
             if (!isInCooldown) {
                 duelInviteManager.getDuelInvites().remove(duelInvite);
-            }
-
-            else {
+            } else {
                 timeFormatted = duelInviteManager.getCooldownMap().getRemainingTimeFormatted(duelInvite);
 
                 final String foundInviteMessage = String.format("&cYou have already sent an invitation to &e'%s' &crecently. Please wait: &e%s", targetPlayer.getName(), timeFormatted);
 
                 MessageUtils.send(sender, foundInviteMessage);
 
-                return false;
+                return;
             }
         }
 
@@ -109,14 +151,14 @@ public final class DuelCommand implements CommandExecutor, CommandUsage {
 
             MessageUtils.send(sender, "&c" + arenaNotFoundMessage);
 
-            return false;
+            return;
         }
 
         final Arena arena = arenaToFind.get();
 
         if (!arena.isActive()) {
             MessageUtils.send(sender, "&cThis arena has been found but is currently not active.");
-            return false;
+            return;
         }
 
         final Fighter fighterOne = fighterSenderToFind.get();
@@ -136,6 +178,17 @@ public final class DuelCommand implements CommandExecutor, CommandUsage {
         final String targetInviteMessage = String.format("&aYou have received an invitation from &e'%s' &aand have &e%s &ato accept.", inviteSender.getName(), timeFormatted);
 
         MessageUtils.send(targetPlayer, targetInviteMessage);
+    }
+
+    private boolean isSubCommand(String[] args) {
+
+        for (SubCommand subCommand : subCommands) {
+            final boolean validSubCommand = subCommand.getAliases().contains(args[0]);
+
+            if (validSubCommand) {
+                return true;
+            }
+        }
 
         return false;
     }
